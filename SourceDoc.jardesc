@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<jardesc>
+    <jar path="JavaCompiler/dist/JavaCompiler-source-doc.jar"/>
+    <options buildIfNeeded="true" compress="true" descriptionLocation="/JavaCompiler/SourceDoc.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="true"/>
+    <storedRefactorings deprecationInfo="true" structuralOnly="false"/>
+    <selectedProjects/>
+    <selectedElements exportClassFiles="false" exportJavaFiles="true" exportOutputFolder="false">
+        <file path="/JavaCompiler/dist/JavaCompiler-bin.jar"/>
+        <folder path="/JavaCompiler/doc"/>
+        <javaElement handleIdentifier="=JavaCompiler/source"/>
+        <file path="/JavaCompiler/README"/>
+    </selectedElements>
+    <fatjar builder="org.eclipse.jdt.ui.plain_jar_builder" launchConfig=""/>
+</jardesc>
