@@ -411,13 +411,17 @@ class JCompiler extends URLClassLoader {
         if (!(aParentClassLoader instanceof JCompiler))
             return null;
         
-        try {
-            final JCompiler aParent = (JCompiler)aParentClassLoader;
+        try (final JCompiler aParent = (JCompiler)aParentClassLoader) {
             if(aParent.isLocalClass(pClassName)) {
                 final Class<?> aClass = aParent.findClass(pClassName);
                 return aClass;
             }
-        } catch(ClassNotFoundException CNFE) {}
+        }
+        catch(ClassNotFoundException CNFE) {}
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         
         return null;
     }

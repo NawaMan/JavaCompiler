@@ -150,8 +150,12 @@ final class JJCompiler {
         
         final ClassLoader aParentClassLoader = this.jcompiler.getParent();
         if (aParentClassLoader instanceof JCompiler) {
-            final JCompiler pParent = (JCompiler)aParentClassLoader;
-            aClasspath += ":" + pParent.getClasspaths();    
+            try (final JCompiler pParent = (JCompiler)aParentClassLoader) {
+                aClasspath += ":" + pParent.getClasspaths();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
         
         return aClasspath;

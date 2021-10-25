@@ -1,8 +1,11 @@
 package net.nawaman.javacompiler.test;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
 
-import net.nawaman.javacompiler.*;
+import net.nawaman.javacompiler.JavaCompiler;
 
 public class Test_02_Classpath {
     
@@ -12,7 +15,7 @@ public class Test_02_Classpath {
         
         final PrintStream  PrintSOrg = System.out;
         final JavaCompiler JC        = JavaCompiler.Instance;
-        final String       ClassName = "com.mysql.jdbc.Driver";
+        final String       ClassName = "com.mysql.cj.jdbc.Driver";
         
         final ByteArrayOutputStream Output0 = new ByteArrayOutputStream();
         final ByteArrayOutputStream Output1 = new ByteArrayOutputStream();
@@ -69,9 +72,14 @@ public class Test_02_Classpath {
         }
         
         Thread T1 = null;
-        try { T1 = ThreadClass.newInstance(); }
-        catch(IllegalAccessException IAE) {}
-        catch(InstantiationException IE)  {}
+        try { T1 = ThreadClass.getConstructor().newInstance(); }
+        catch (IllegalAccessException IAE)  {}
+        catch (InstantiationException IE)   {}
+        catch (IllegalArgumentException e)  {}
+        catch (InvocationTargetException e) {}
+        catch (NoSuchMethodException e)     {}
+        catch (SecurityException e)         {}
+        
         if(T1 == null)
             throw new AssertionError(
                     "Compilation have failed because the result class has no default constructor.");
@@ -102,8 +110,7 @@ public class Test_02_Classpath {
         Code.append("        throw new AssertionError(\"Unable to acccess the class so the classpath is not added.\");\n");
         Code.append("    }\n");
         Code.append("}\n");
-        String Path = (new File(".")).getAbsolutePath()
-                + "/source/net/nawaman/javacompiler/test/mysql-connector-java.jar";
+        String Path = (new File(".")).getAbsolutePath() + "/mysql-connector-java.jar";
         
         Path = Path.replace("/./", "/");
         JC.addJarFile(Path);
@@ -124,9 +131,14 @@ public class Test_02_Classpath {
         }
         
         T1 = null;
-        try { T1 = ThreadClass.newInstance(); }
-        catch(IllegalAccessException IAE) {}
-        catch(InstantiationException IE)  {}
+        try { T1 = ThreadClass.getConstructor().newInstance(); }
+        catch (IllegalAccessException IAE)  {}
+        catch (InstantiationException IE)   {}
+        catch (IllegalArgumentException e)  {}
+        catch (InvocationTargetException e) {}
+        catch (NoSuchMethodException e)     {}
+        catch (SecurityException e)         {}
+        
         if(T1 == null)
             throw new AssertionError(
                     "Compilation have failed because the result class has no default constructor.");
@@ -169,9 +181,14 @@ public class Test_02_Classpath {
         }
         
         T1 = null;
-        try { T1 = ThreadClass.newInstance(); }
-        catch(IllegalAccessException IAE) {}
-        catch(InstantiationException IE)  {}
+        try { T1 = ThreadClass.getConstructor().newInstance(); }
+        catch (IllegalAccessException IAE)  {}
+        catch (InstantiationException IE)   {}
+        catch (IllegalArgumentException e)  {}
+        catch (InvocationTargetException e) {}
+        catch (NoSuchMethodException e)     {}
+        catch (SecurityException e)         {}
+        
         if(T1 == null)
             throw new AssertionError(
                     "Compilation have failed because the result class has no default constructor.");

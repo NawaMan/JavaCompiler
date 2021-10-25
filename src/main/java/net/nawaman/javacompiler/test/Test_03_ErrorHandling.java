@@ -29,13 +29,14 @@ public class Test_03_ErrorHandling {
         JC.addCode(CName + ".java", "", Code.toString());
         
         StringBuilder ExpectedError = new StringBuilder();
-        ExpectedError.append("TestClass03A.java:3: cannot return a value from method whose result type is void\n");
+        ExpectedError.append("TestClass03A.java:3: error: incompatible types: unexpected return value\n");
         ExpectedError.append("        return 5;\n");
         ExpectedError.append("               ^\n");
         ExpectedError.append("1 error\n");
         
         if((Error = JC.compile()) != null) {
             if(!ExpectedError.toString().equals(Error.toString())) {
+                System.out.println();
                 System.out.printf("ExpectedError (%d): %s\n", ExpectedError.toString().length(), ExpectedError.toString());
                 System.out.printf("Error         (%d): %s\n", Error        .toString().length(), Error        .toString());
                 throw new AssertionError("The results are not equals.");
@@ -67,8 +68,12 @@ public class Test_03_ErrorHandling {
         if(Problems.size() != 1) throw new AssertionError("There should be only problem here.");
         Diagnostic<? extends JavaFileObject> Problem = Problems.get(0);
         
-        if(!Problem.getCode().equals("compiler.err.cant.ret.val.from.meth.decl.void"))
+        if(!Problem.getCode().equals("compiler.err.prob.found.req")) {
+            System.out.println();
+            System.out.println("Actual  : " + Problem.getCode());
+            System.out.println("Expected: compiler.err.cant.ret.val.from.meth.decl.void");
             throw new AssertionError("The problem's 'code' is not the same.");
+        }
         if(Problem.getColumnNumber() != 16)
             throw new AssertionError("The problem's 'column number' is not the same.");
         if(Problem.getEndPosition() != 93)
@@ -77,8 +82,12 @@ public class Test_03_ErrorHandling {
             throw new AssertionError("The problem's 'kind' is not the same.");
         if(Problem.getLineNumber() != 3)
             throw new AssertionError("The problem's 'line number' is not the same.");
-        if(!Problem.getMessage(Locale.getDefault()).equals("TestClass03B.java:3: cannot return a value from method whose result type is void"))
+        if(!Problem.getMessage(Locale.getDefault()).equals("incompatible types: unexpected return value")) {
+            System.out.println();
+            System.out.println("Actual  : " + Problem.getMessage(Locale.getDefault()));
+            System.out.println("Expected: incompatible types: unexpected return value");
             throw new AssertionError("The problem's 'message' is not the same.");
+        }
         if(Problem.getPosition() != 92)
             throw new AssertionError("The problem's 'position' is not the same.");
         if(!Problem.getSource().toString().startsWith("net.nawaman.javacompiler.JavaCodeMemoryFileObject@"))

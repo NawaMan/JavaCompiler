@@ -1,6 +1,7 @@
 package net.nawaman.javacompiler.test;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 
 import net.nawaman.javacompiler.*;
 
@@ -46,9 +47,13 @@ public class Test_04_Persistent {
         }
         
         Thread T1 = null;
-        try { T1 = ThreadClass.newInstance(); }
-        catch(IllegalAccessException IAE) {}
-        catch(InstantiationException IE)  {}
+        try { T1 = ThreadClass.getConstructor().newInstance(); }
+        catch (IllegalAccessException IAE)  {}
+        catch (InstantiationException IE)   {}
+        catch (IllegalArgumentException e)  {}
+        catch (InvocationTargetException e) {}
+        catch (NoSuchMethodException e)     {}
+        catch (SecurityException e)         {}
         if(T1 == null) throw new AssertionError("Compilation have failed because the result class has no default constructor.");
         
         T1.start();
@@ -89,9 +94,14 @@ public class Test_04_Persistent {
         }
         
         Thread T2 = null;
-        try { T2 = ThreadClass.newInstance(); }
-        catch(IllegalAccessException IAE) {}
-        catch(InstantiationException IE)  {}
+        try { T2 = ThreadClass.getConstructor().newInstance(); }
+        catch(IllegalAccessException IAE)   {}
+        catch(InstantiationException IE)    {}
+        catch (IllegalArgumentException e)  {}
+        catch (InvocationTargetException e) {}
+        catch (NoSuchMethodException e)     {}
+        catch (SecurityException e)         {}
+        
         if(T2 == null) throw new AssertionError("Compilation have failed because the result class has no default constructor.");
         
         T2.start();

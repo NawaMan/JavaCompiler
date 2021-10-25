@@ -28,6 +28,16 @@ final class MemoryFileManager implements StandardJavaFileManager {
     private HashMap<String, JavaCodeMemoryFileObject>  codes;
     private HashMap<String, JavaClassMemoryFileObject> classes;
     
+    @Override
+    public Iterable<Set<Location>> listLocationsForModules(Location location) throws IOException {
+        return fileManager.listLocationsForModules(location);
+    }
+    
+    @Override
+    public String inferModuleName(Location location) throws IOException {
+        return fileManager.inferModuleName(location);
+    }
+    
     /** Clear the object to avoid memory leak */
     final public void dispose() {
         this.fileManager  = null;
