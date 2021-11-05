@@ -8,6 +8,8 @@ import java.io.ObjectOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;

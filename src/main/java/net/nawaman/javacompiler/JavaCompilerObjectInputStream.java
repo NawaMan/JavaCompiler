@@ -112,6 +112,35 @@ public class JavaCompilerObjectInputStream extends ObjectInputStream {
     
     JavaCompiler jcompiler;
     
+    static private Map<String, String> replaceClasses;
+    
+    static {
+        var map = new HashMap<String, String>();
+        map.put("net.nawaman.regparser.ParseResult", "net.nawaman.regparser.result.ParseResult");
+        replaceClasses = map;
+    }
+    
+    private String replaceClassName(String orgName) {
+        return replaceClasses
+                .entrySet()
+                .stream()
+                .map(entry -> {
+                    var fromClass = entry.getKey();
+                    var toClass   = entry.getValue();
+                    var from      = "^" + fromClass;
+                    var fromArray = "^\\[L" + fromClass;
+                    var toArray   = "[L" + toClass;
+                    
+                    return orgName
+                            .replaceFirst(from, toClass)
+                            .replaceFirst(fromArray, toArray);
+                })
+                .filter(name -> !orgName.equals(name))
+                .findFirst()
+                .orElse(orgName);
+    }
+    
+    
     /** Returns the class loader of this option */
     public JavaCompiler getJavaCompiler() {
         return this.jcompiler;
@@ -143,6 +172,12 @@ public class JavaCompilerObjectInputStream extends ObjectInputStream {
             throws
                 IOException,
                 ClassNotFoundException {
+        var originalName = pClassDesc.getName();
+        var replacedName = replaceClassName(originalName);
+        if (!originalName.equals(replacedName)) {
+            return Class.forName(replacedName);
+        }
+        
         try {
             final Class<?> C = super.resolveClass(pClassDesc);
             if(C == null)
@@ -150,8 +185,18 @@ public class JavaCompilerObjectInputStream extends ObjectInputStream {
         } catch(ClassNotFoundException CNFE) {
         }
         
-        final String   aName  = pClassDesc.getName();
+        final String   aName  = originalName;
         final Class<?> aClass = this.jcompiler.forName(aName);
         return aClass;
+    }
+    
+    protected ObjectStreamClass readClassDescriptor() throws IOException, ClassNotFoundException {
+        ObjectStreamClass pClassDesc = super.readClassDescriptor();
+        var originalName = pClassDesc.getName();
+        var replacedName = replaceClassName(originalName);
+        if(!replacedName.equals(pClassDesc.getName())) {
+            pClassDesc = ObjectStreamClass.lookup(Class.forName(replacedName));
+        }
+        return pClassDesc;
     }
 }
