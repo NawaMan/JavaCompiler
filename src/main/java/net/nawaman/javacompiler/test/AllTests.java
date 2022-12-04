@@ -16,7 +16,7 @@ public class AllTests {
     }
     
     /** Main function of the tests */
-    public static void main(String[] args) {
+    public static void main(String ... args) {
         Test_00_UnitTests    .main(args);
         Test_01_SimpleCompile.main(args);
         Test_02_Classpath    .main(args);
