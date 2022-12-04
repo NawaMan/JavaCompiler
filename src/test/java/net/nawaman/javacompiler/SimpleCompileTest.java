@@ -1,16 +1,12 @@
-package net.nawaman.javacompiler.test;
+package net.nawaman.javacompiler;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 
-import net.nawaman.javacompiler.JavaCompiler;
+import org.junit.jupiter.api.Test;
 
-/**
- * This simple compilations
- * 1. Test compiling a class that extends a class
- * 2. Test compiling a class that implements an interface
- */
-public class Test_01_SimpleCompile {
+class SimpleCompileTest {
     
     static public class TestClass01 extends Thread {
         @Override public void run() {
@@ -26,17 +22,12 @@ public class Test_01_SimpleCompile {
         }
     }
     
-    public static void main(String[] args) {
-        
-        AllTests.PrintTestTitle();
-        
-        final PrintStream  PrintSOrg = System.out;
-        final JavaCompiler JC        = JavaCompiler.Instance;
-        
+    static final PrintStream  PrintSOrg = System.out;
+    static final JavaCompiler JC        = JavaCompiler.Instance;
+    
+    @Test
+    void compileClassThatExtendsAClass() {
         String Error = null;
-        
-        
-        // Test 1: Compile a class that extends a class --------------------------------------------
         
         String        CName = "TestClass01A";
         StringBuilder Code  = new StringBuilder();
@@ -96,11 +87,16 @@ public class Test_01_SimpleCompile {
             System.out.printf("Output2 (%d): %s\n", Output2.toString().length(), Output2.toString());
             throw new AssertionError("The results are not equals.");
         }
+    }
+    
+    @Test
+    void compileClassThatImplementAnInterface() {
+        String Error = null;
         
         // Test 2: Compile a class that implements an interface ------------------------------------
         
-        CName = "TestClass01B";
-        Code  = new StringBuilder();
+        var CName = "TestClass01B";
+        var Code  = new StringBuilder();
         Code.append("public class "+CName+" implements Runnable {\n");
         Code.append("    @Override public void run() {\n");
         Code.append("        for(int Counter = 0; Counter < 10; Counter++)\n");
@@ -111,14 +107,14 @@ public class Test_01_SimpleCompile {
         if((Error = JC.compile()) != null)
             throw new AssertionError("Problem compiling the test class '"+CName+"': \n" + Error);
         
-        Output1 = new ByteArrayOutputStream();
-        Output2 = new ByteArrayOutputStream();
-        PrintS1   = new PrintStream(Output1);
-        PrintS2   = new PrintStream(Output2);
+        var Output1 = new ByteArrayOutputStream();
+        var Output2 = new ByteArrayOutputStream();
+        var PrintS1   = new PrintStream(Output1);
+        var PrintS2   = new PrintStream(Output2);
         
         // Statically compiled Java class ---------------------------------------------------------
         System.setOut(PrintS1);
-        T1 = new Thread(new TestClass02());
+        var T1 = new Thread(new TestClass02());
         T1.start();
         while(T1.isAlive());
         
@@ -135,7 +131,7 @@ public class Test_01_SimpleCompile {
                     "Compilation have failed because the result class is not a Runnable class.");
         }
         
-        T2 = null;
+        Thread T2 = null;
         try { T2 = new Thread(RunnableClass.getConstructor().newInstance()); }
         catch (IllegalAccessException IAE)  {}
         catch (InstantiationException IE)   {}
