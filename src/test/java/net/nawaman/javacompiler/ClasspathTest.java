@@ -1,32 +1,18 @@
-package net.nawaman.javacompiler.test;
+package net.nawaman.javacompiler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 
-import net.nawaman.javacompiler.JavaCompiler;
+import org.junit.jupiter.api.Test;
 
-public class Test_02_Classpath {
+class ClasspathTest {
     
-    public static void main(String[] args) {
+    @Test
+    public void ensureClassAccessibleStaticly() {
         
-        AllTests.PrintTestTitle();
-        
-        final PrintStream  PrintSOrg = System.out;
-        final JavaCompiler JC        = JavaCompiler.Instance;
         final String       ClassName = "com.mysql.cj.jdbc.Driver";
-        
-        final ByteArrayOutputStream Output0 = new ByteArrayOutputStream();
-        final ByteArrayOutputStream Output1 = new ByteArrayOutputStream();
-        final ByteArrayOutputStream Output2 = new ByteArrayOutputStream();
-        final ByteArrayOutputStream Output3 = new ByteArrayOutputStream();
-        final PrintStream           PrintS0   = new PrintStream(Output0);
-        final PrintStream           PrintS1   = new PrintStream(Output1);
-        final PrintStream           PrintS2   = new PrintStream(Output2);
-        final PrintStream           PrintS3   = new PrintStream(Output3);
-        
-        String Error = null;
         
         // Test 1: The class should not be accessible statically
         
@@ -37,9 +23,25 @@ public class Test_02_Classpath {
         catch(ClassNotFoundException CNF) {}
         catch(ClassCastException CCE)     {}
         
-        PrintS0.println(ClassName);
+    }
+    
+    @Test
+    public void ensureClassNotAccessibleDynamically() {
+        
+        final PrintStream  PrintSOrg = System.out;
+        final JavaCompiler JC        = new JavaCompiler(ClasspathTest.class.getClassLoader());
+        final String       ClassName = "com.mysql.cj.jdbc.Driver";
+        
+        final ByteArrayOutputStream Output0 = new ByteArrayOutputStream();
+        final ByteArrayOutputStream Output1 = new ByteArrayOutputStream();
+        final PrintStream           PrintS0 = new PrintStream(Output0);
+        final PrintStream           PrintS1   = new PrintStream(Output1);
+        
+        String Error = null;
         
         // Test 2: The class should not be accessible dynamically when the classpath is not added
+        
+        PrintS0.println(ClassName);
         
         String        CName = "TestClass02A";
         StringBuilder Code  = new StringBuilder();
@@ -94,7 +96,27 @@ public class Test_02_Classpath {
             throw new AssertionError("The results are not equals.");
         }
         
+    }
+    
+    @Test
+    public void ensureClassAccessibleDynamicallyWithClassPath() {
+        
+        final PrintStream  PrintSOrg = System.out;
+        final JavaCompiler JC        = new JavaCompiler(ClasspathTest.class.getClassLoader());
+        final String       ClassName = "com.mysql.cj.jdbc.Driver";
+        
+        final ByteArrayOutputStream Output0 = new ByteArrayOutputStream();
+        final ByteArrayOutputStream Output2 = new ByteArrayOutputStream();
+        final PrintStream           PrintS0   = new PrintStream(Output0);
+        final PrintStream           PrintS2   = new PrintStream(Output2);
+        
+        String Error = null;
+        String        CName = "TestClass02A";
+        StringBuilder Code  = new StringBuilder();
+        
         // Test 3: The class should be accessible dynamically when the classpath is added
+        
+        PrintS0.println(ClassName);
         
         CName = "TestClass02B";
         Code  = new StringBuilder();
@@ -119,7 +141,7 @@ public class Test_02_Classpath {
             throw new AssertionError("Problem compiling the test class '"+CName+"': \n" + Error);
         
         System.setOut(PrintS2);
-        ThreadClass = null;
+        Class<? extends Thread> ThreadClass = null;
         try {
             ThreadClass = JC.forName(CName).asSubclass(Thread.class); 
         } catch(ClassNotFoundException CNFE) {
@@ -130,7 +152,7 @@ public class Test_02_Classpath {
                     "Compilation have failed because the result class is not a Thread class.");
         }
         
-        T1 = null;
+        Thread T1 = null;
         try { T1 = ThreadClass.getConstructor().newInstance(); }
         catch (IllegalAccessException IAE)  {}
         catch (InstantiationException IE)   {}
@@ -153,7 +175,27 @@ public class Test_02_Classpath {
             throw new AssertionError("The results are not equals.");
         }
         
+    }
+    
+    @Test
+    public void ensureClassAccessibleStaticallyWithClassPath() {
+        
+        final PrintStream  PrintSOrg = System.out;
+        final JavaCompiler JC        = new JavaCompiler(ClasspathTest.class.getClassLoader());
+        final String       ClassName = "com.mysql.cj.jdbc.Driver";
+        
+        final ByteArrayOutputStream Output0 = new ByteArrayOutputStream();
+        final ByteArrayOutputStream Output3 = new ByteArrayOutputStream();
+        final PrintStream           PrintS0   = new PrintStream(Output0);
+        final PrintStream           PrintS3   = new PrintStream(Output3);
+        
+        String Error = null;
+        String        CName = "TestClass02A";
+        StringBuilder Code  = new StringBuilder();
+        
         // Test 4: The class should be accessible statically when the classpath is added
+        
+        PrintS0.println(ClassName);
         
         CName = "TestClass03B";
         Code  = new StringBuilder();
@@ -165,11 +207,16 @@ public class Test_02_Classpath {
         Code.append("    }\n");
         Code.append("}\n");
         JC.addCode(CName + ".java", "", Code.toString());
+        String Path = (new File(".")).getAbsolutePath() + "/mysql-connector-java.jar";
+        
+        Path = Path.replace("/./", "/");
+        JC.addJarFile(Path);
+        JC.addCode(CName + ".java", "", Code.toString());
         if((Error = JC.compile()) != null)
             throw new AssertionError("Problem compiling the test class '"+CName+"': \n" + Error);
         
         System.setOut(PrintS3);
-        ThreadClass = null;
+        Class<? extends Thread> ThreadClass = null;
         try {
             ThreadClass = JC.forName(CName).asSubclass(Thread.class); 
         } catch(ClassNotFoundException CNFE) {
@@ -180,7 +227,7 @@ public class Test_02_Classpath {
                     "Compilation have failed because the result class is not a Thread class.");
         }
         
-        T1 = null;
+        Thread T1 = null;
         try { T1 = ThreadClass.getConstructor().newInstance(); }
         catch (IllegalAccessException IAE)  {}
         catch (InstantiationException IE)   {}
@@ -202,10 +249,6 @@ public class Test_02_Classpath {
             System.out.printf("Output3 (%d): %s\n", Output3.toString().length(), Output3.toString());
             throw new AssertionError("The results are not equals.");
         }
-        
-        // Done ------------------------------------------------------------------------------------
-        
-        System.out.println("DONE!!!");
     }
     
 }
