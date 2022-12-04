@@ -196,24 +196,11 @@ final public class ClassData implements Serializable {
     }
     
     /** Returns a shared empty byte array if the given array is null or empty */
-    static private byte[] GetNonNullByteArray(final byte[] pBytes) {
+    static byte[] getNonNullByteArray(final byte[] pBytes) {
         if ((pBytes == null) || (pBytes.length == 0))
             return ClassData.EMPTY_ARRAY_BYTE;
         
         return pBytes;
     }
     
-    // Test ------------------------------------------------------------------------------------------------------------
-    
-    static public void Test_Me() {
-        Test_GetNonNullByteArray();
-    }
-    
-    static private void Test_GetNonNullByteArray() {
-        assert(GetNonNullByteArray(null)        == ClassData.EMPTY_ARRAY_BYTE);
-        assert(GetNonNullByteArray(new byte[0]) == ClassData.EMPTY_ARRAY_BYTE);
-        
-        byte[] aNewOne = new byte[5];
-        assert(GetNonNullByteArray(aNewOne) == aNewOne);
-    }
 }
