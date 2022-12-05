@@ -1,18 +1,19 @@
-package net.nawaman.javacompiler.test;
+package net.nawaman.javacompiler;
 
-import java.util.*;
+import java.util.List;
+import java.util.Locale;
 
-import javax.tools.*;
-import javax.tools.Diagnostic.*;
+import javax.tools.Diagnostic;
+import javax.tools.Diagnostic.Kind;
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaFileObject;
 
-import net.nawaman.javacompiler.JavaCompiler;
+import org.junit.jupiter.api.Test;
 
-
-public class Test_03_ErrorHandling {
+class ErrorHandlingTest {
     
-    public static void main(String[] args) {
-        
-        AllTests.PrintTestTitle();
+    @Test
+    void testErrorHandling() {
         
         String Error = null;
         
@@ -94,10 +95,6 @@ public class Test_03_ErrorHandling {
             throw new AssertionError("The problem's 'source' is not the same.");
         if(Problem.getStartPosition() != 92)
             throw new AssertionError("The problem's 'position' is not the same.");        
-        
-        // Done ---------------------------------------------------------------------------------------------
-        
-        System.out.println("DONE!!!");
         
     }
     
