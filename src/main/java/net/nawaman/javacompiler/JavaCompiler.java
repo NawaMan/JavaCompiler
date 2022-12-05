@@ -81,7 +81,7 @@ final public class JavaCompiler {
     }
     
     /** Constructs a JavaCompiler using the ClassLoader of this class as base */
-    private JavaCompiler() {
+    public JavaCompiler() {
         this.jcompiler = new JCompiler();
     }
     
