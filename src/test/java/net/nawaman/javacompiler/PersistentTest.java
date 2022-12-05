@@ -1,17 +1,15 @@
-package net.nawaman.javacompiler.test;
+package net.nawaman.javacompiler;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 
-import net.nawaman.javacompiler.*;
+import org.junit.jupiter.api.Test;
 
-
-public class Test_04_Persistent {
+class PersistentTest {
     
-    public static void main(String[] args) {
-        
-        AllTests.PrintTestTitle();
-        
+    @Test
+    void persistentTest() {
         PrintStream PrintSOrg = System.out;
         String      Error     = null;
         ClassData   CData1    = null;
@@ -79,6 +77,7 @@ public class Test_04_Persistent {
         catch(ClassNotFoundException CNFE) {}
         catch(ClassCastException CCE) {}
         
+        
         // Test 3: Make sure the added class exist now ------------------------------------------------------
         
         JC.addClassData(CData2);
@@ -121,10 +120,6 @@ public class Test_04_Persistent {
         
         if(T1.getClass() == T2.getClass())
             throw new AssertionError("Classes of T1 and T2 are the exact same class so the class was not actually reloaded.");
-        
-        // Done ---------------------------------------------------------------------------------------------
-        
-        System.out.println("DONE!!!");
     }
     
 }
