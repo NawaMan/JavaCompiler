@@ -1,101 +1,94 @@
 package net.nawaman.javacompiler;
 
-import java.util.List;
+import static net.nawaman.javacompiler.helpers.TestHelper.assertAsString;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.Locale;
 
-import javax.tools.Diagnostic;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 
 import org.junit.jupiter.api.Test;
 
+import net.nawaman.javacompiler.helpers.TestCompiler;
+
 class ErrorHandlingTest {
     
     @Test
     void testErrorHandling() {
+        var testCompiler = new TestCompiler(new JavaCompiler());
         
-        String Error = null;
+        var className = "TestClass03A";
+        var classCode = new StringBuilder();
+        classCode.append("public class "+className+" extends Thread {\n");
+        classCode.append("    @Override public void run() {\n");
+        classCode.append("        return 5;\n");
+        classCode.append("    }\n");
+        classCode.append("}\n");
         
-        final JavaCompiler JC = JavaCompiler.Instance;
+        try {
+            testCompiler.compileCode(className, classCode);
+            
+        } catch (AssertionError error) {
+            assertAsString(
+                    "java.lang.AssertionError: Problem compiling the test class 'TestClass03A': \n"
+                    + "TestClass03A.java:3: error: incompatible types: unexpected return value\n"
+                    + "        return 5;\n"
+                    + "               ^\n"
+                    + "1 error\n"
+                    + "",
+                    error.getClass().getCanonicalName() + ": " + error.getMessage());
+        }
+    }
+    
+    @Test
+    void testErrorHandling_withDiagnosics() {
+        var testCompiler = new TestCompiler(new JavaCompiler());
         
-        // Test 1: Capture error as string --------------------------------------------------------
-        String        CName = "TestClass03A";
-        StringBuilder Code  = new StringBuilder();
-        Code.append("public class "+CName+" extends Thread {\n");
-        Code.append("    @Override public void run() {\n");
-        Code.append("        return 5;\n");
-        Code.append("    }\n");
-        Code.append("}\n");
-        JC.addCode(CName + ".java", "", Code.toString());
+        var className = "TestClass03B";
+        var classCode = new StringBuilder();
+        classCode.append("public class "+className+" extends Thread {\n");
+        classCode.append("    @Override public void run() {\n");
+        classCode.append("        return 5;\n");
+        classCode.append("    }\n");
+        classCode.append("}\n");
         
-        StringBuilder ExpectedError = new StringBuilder();
-        ExpectedError.append("TestClass03A.java:3: error: incompatible types: unexpected return value\n");
-        ExpectedError.append("        return 5;\n");
-        ExpectedError.append("               ^\n");
-        ExpectedError.append("1 error\n");
-        
-        if((Error = JC.compile()) != null) {
-            if(!ExpectedError.toString().equals(Error.toString())) {
-                System.out.println();
-                System.out.printf("ExpectedError (%d): %s\n", ExpectedError.toString().length(), ExpectedError.toString());
-                System.out.printf("Error         (%d): %s\n", Error        .toString().length(), Error        .toString());
-                throw new AssertionError("The results are not equals.");
-            }
+        var diagnostics = new DiagnosticCollector<JavaFileObject>();
+        try {
+            testCompiler.compileCode(className, classCode, diagnostics);
+            
+        } catch (AssertionError error) {
+            assertAsString(
+                    "java.lang.AssertionError: Problem compiling the test class 'TestClass03B': \n"
+                    + "Compile failed (See in Diagnosic collection for more info.)",
+                    error.getClass().getCanonicalName() + ": " + error.getMessage());
         }
         
-        // Test 2: Capture error as Diagnostics ---------------------------------------------------
-        CName = "TestClass03B";
-        Code  = new StringBuilder();
-        Code.append("public class "+CName+" extends Thread {\n");
-        Code.append("    @Override public void run() {\n");
-        Code.append("        return 5;\n");
-        Code.append("    }\n");
-        Code.append("}\n");
-        JC.addCode(CName + ".java", "", Code.toString());
-        
-        DiagnosticCollector<JavaFileObject> Diagnostics = new DiagnosticCollector<JavaFileObject>();
-        
-        ExpectedError = new StringBuilder("Compile failed (See in Diagnosic collection for more info.)");
-        if((Error = JC.compile(Diagnostics)) != null) {
-            if(!ExpectedError.toString().equals(Error.toString())) {
-                System.out.printf("ExpectedError (%d): %s\n", ExpectedError.toString().length(), ExpectedError.toString());
-                System.out.printf("Error         (%d): %s\n", Error        .toString().length(), Error        .toString());
-                throw new AssertionError("The results are not equals.");
-            }
+        var problems = diagnostics.getDiagnostics();
+        if (problems.size() != 1) {
+            throw new AssertionError("There should be only problem here.");
         }
         
-        List<Diagnostic<? extends JavaFileObject>> Problems = Diagnostics.getDiagnostics();
-        if(Problems.size() != 1) throw new AssertionError("There should be only problem here.");
-        Diagnostic<? extends JavaFileObject> Problem = Problems.get(0);
+        var problem = problems.get(0);
         
-        if(!Problem.getCode().equals("compiler.err.prob.found.req")) {
-            System.out.println();
-            System.out.println("Actual  : " + Problem.getCode());
-            System.out.println("Expected: compiler.err.cant.ret.val.from.meth.decl.void");
-            throw new AssertionError("The problem's 'code' is not the same.");
-        }
-        if(Problem.getColumnNumber() != 16)
-            throw new AssertionError("The problem's 'column number' is not the same.");
-        if(Problem.getEndPosition() != 93)
-            throw new AssertionError("The problem's 'end position' is not the same.");
-        if(Problem.getKind() != Kind.ERROR)
-            throw new AssertionError("The problem's 'kind' is not the same.");
-        if(Problem.getLineNumber() != 3)
-            throw new AssertionError("The problem's 'line number' is not the same.");
-        if(!Problem.getMessage(Locale.getDefault()).equals("incompatible types: unexpected return value")) {
-            System.out.println();
-            System.out.println("Actual  : " + Problem.getMessage(Locale.getDefault()));
-            System.out.println("Expected: incompatible types: unexpected return value");
-            throw new AssertionError("The problem's 'message' is not the same.");
-        }
-        if(Problem.getPosition() != 92)
-            throw new AssertionError("The problem's 'position' is not the same.");
-        if(!Problem.getSource().toString().startsWith("net.nawaman.javacompiler.JavaCodeMemoryFileObject@"))
-            throw new AssertionError("The problem's 'source' is not the same.");
-        if(Problem.getStartPosition() != 92)
-            throw new AssertionError("The problem's 'position' is not the same.");        
+        assertAsString("compiler.err.prob.found.req", problem.getCode());
         
+        assertEquals(16, problem.getColumnNumber(),  "The problem's 'column number' is not the same.");
+        assertEquals(93, problem.getEndPosition(),   "The problem's 'end position' is not the same.");
+        assertEquals(3,  problem.getLineNumber(),    "The problem's 'line number' is not the same.");
+        assertEquals(92, problem.getPosition(),      "The problem's 'position' is not the same.");
+        assertEquals(92, problem.getStartPosition(), "The problem's 'position' is not the same.");
+        
+        assertEquals(Kind.ERROR, problem.getKind(), "The problem's 'kind' is not the same.");
+        
+        assertAsString("The problem's 'message' is not the same.",
+                       "incompatible types: unexpected return value",
+                       problem.getMessage(Locale.getDefault()));
+        
+        assertTrue(problem.getSource().toString().startsWith("net.nawaman.javacompiler.JavaCodeMemoryFileObject@"),
+                   "The problem's 'source' is not the same.");
     }
     
 }

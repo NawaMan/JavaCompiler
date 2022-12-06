@@ -2,6 +2,9 @@ package net.nawaman.javacompiler.helpers;
 
 import java.io.File;
 
+import javax.tools.DiagnosticCollector;
+import javax.tools.JavaFileObject;
+
 import net.nawaman.javacompiler.JavaCompiler;
 
 public class TestCompiler {
@@ -19,14 +22,24 @@ public class TestCompiler {
     }
     
     public TestThread compileCode(String className, CharSequence classCode) {
-        return compileCode(className, "", classCode);
+        return compileCode(className, "", classCode, null);
     }
     
     public TestThread compileCode(String className, String codeDirectory, CharSequence classCode) {
+        return compileCode(className, "", classCode, null);
+    }
+    
+    public TestThread compileCode(String className, CharSequence classCode, DiagnosticCollector<JavaFileObject> diagnostics) {
+        return compileCode(className, "", classCode, diagnostics);
+    }
+    
+    public TestThread compileCode(String className, String codeDirectory, CharSequence classCode, DiagnosticCollector<JavaFileObject> diagnostics) {
         var codeContent = classCode.toString();
         compiler.addCode(className + ".java", codeDirectory, codeContent);
         
-        var compilationError = compiler.compile();
+        var compilationError = (diagnostics == null)
+                             ? compiler.compile()
+                             : compiler.compile(diagnostics);
         if(compilationError != null) {
             throw new AssertionError("Problem compiling the test class '" + className + "': \n" + compilationError);
         }
