@@ -1,10 +1,12 @@
 package net.nawaman.javacompiler.helpers;
 
 import java.io.File;
+import java.util.Optional;
 
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 
+import net.nawaman.javacompiler.ClassData;
 import net.nawaman.javacompiler.JavaCompiler;
 
 public class TestCompiler {
@@ -54,5 +56,25 @@ public class TestCompiler {
         } catch(ClassCastException exception) {
             throw new AssertionError("Compilation have failed because the result class is not a Thread class.", exception);
         }
+    }
+    
+    public ClassData getCompiledClassData(String className, boolean isToSaveCode) {
+        return compiler.getCompiledClassData(className, isToSaveCode);
+    }
+    
+    public <T> Optional<Class<T>> getClassByName(String className) {
+        try {
+            @SuppressWarnings("unchecked")
+            var clazz = (Class<T>)compiler.forName(className);
+            return Optional.of(clazz);
+        }
+        catch(ClassNotFoundException CNFE) {}
+        catch(ClassCastException     CCE) {}
+        
+        return Optional.empty();
+    }
+    
+    public void addClassData(ClassData classData) {
+        compiler.addClassData(classData);
     }
 }
